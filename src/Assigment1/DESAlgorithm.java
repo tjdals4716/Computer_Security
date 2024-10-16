@@ -43,6 +43,7 @@ public class DESAlgorithm {
         return new String(decryptedBytes);
     }
 
+    // 메인 메서드
     public static void main(String[] args) {
         try {
             // 1. DES 키 생성

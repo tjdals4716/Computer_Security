@@ -28,6 +28,7 @@ public class DESDecryption {
         return new String(decryptedBytes);
     }
 
+    // 메인 메서드
     public static void main(String[] args) {
         try {
             // SecretKey 파일로부터 불러오기

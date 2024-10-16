@@ -53,7 +53,7 @@ public class DESFileEncryption {
         System.out.println("복호화 파일 확인 완료 : " + outputFilePath);
     }
 
-    // 두 파일이 동일한지 확인하는 메서드
+    // 두 파일이 동일 여부 확인 메서드
     public static boolean compareFiles(String filePath1, String filePath2) throws IOException {
         byte[] file1Bytes = Files.readAllBytes(Paths.get(filePath1));
         byte[] file2Bytes = Files.readAllBytes(Paths.get(filePath2));
@@ -62,6 +62,7 @@ public class DESFileEncryption {
         return java.util.Arrays.equals(file1Bytes, file2Bytes);
     }
 
+    // 메인 메서드
     public static void main(String[] args) {
         try {
             // 1. DES 암호화 키 생성

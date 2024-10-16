@@ -35,6 +35,7 @@ public class DESEncryption {
         }
     }
 
+    // 메인 메서드
     public static void main(String[] args) {
         try {
             // DES 키 생성
