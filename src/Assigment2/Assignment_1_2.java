@@ -1,29 +1,43 @@
-package Assigment1;
+package Assigment2;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.SecureRandom;
 import java.util.Base64;
 
-public class DESFileEncryptionPrint {
+public class Assignment_1_2 {
 
-    private static final String ALGORITHM = "DES";  // DES 알고리즘 지정
-    private static final String TRANSFORMATION = "DES/ECB/PKCS5Padding";  // ECB 모드와 패딩 방식 지정
+    // DES 알고리즘 지정
+    private static final String ALGORITHM = "DES";
+    // CBC 모드와 패딩 방식 지정
+    private static final String TRANSFORMATION = "DES/CBC/PKCS5Padding";
 
     // DES 키 생성 메서드
     public static SecretKey generateKey() throws Exception {
         KeyGenerator keyGenerator = KeyGenerator.getInstance(ALGORITHM);
-        keyGenerator.init(56);  // DES는 56-bit 키 사용
+        // DES는 56-bit 키 사용
+        keyGenerator.init(56);
         return keyGenerator.generateKey();
     }
 
+    // IV 생성 메서드
+    public static IvParameterSpec generateIV() {
+        // DES 블록 크기는 8바이트
+        byte[] iv = new byte[8];
+        new SecureRandom().nextBytes(iv);
+        return new IvParameterSpec(iv);
+    }
+
     // 파일 암호화 메서드
-    public static void encryptFile(SecretKey key, String inputFilePath, String outputFilePath) throws Exception {
+    public static void encryptFile(SecretKey key, IvParameterSpec iv, String inputFilePath, String outputFilePath) throws Exception {
         Cipher cipher = Cipher.getInstance(TRANSFORMATION);
-        cipher.init(Cipher.ENCRYPT_MODE, key);  // 암호화 모드로 설정
+        // 암호화 모드와 IV 설정
+        cipher.init(Cipher.ENCRYPT_MODE, key, iv);
 
         // 평문 파일 읽기
         byte[] inputBytes = Files.readAllBytes(Paths.get(inputFilePath));
@@ -31,22 +45,35 @@ public class DESFileEncryptionPrint {
         // 암호화 수행
         byte[] outputBytes = cipher.doFinal(inputBytes);
 
-        // 암호문 파일로 저장
-        Files.write(Paths.get(outputFilePath), Base64.getEncoder().encode(outputBytes));
+        // IV와 암호문을 함께 저장 (IV + 암호문)
+        byte[] ivWithCipherText = new byte[iv.getIV().length + outputBytes.length];
+        System.arraycopy(iv.getIV(), 0, ivWithCipherText, 0, iv.getIV().length);
+        System.arraycopy(outputBytes, 0, ivWithCipherText, iv.getIV().length, outputBytes.length);
+
+        Files.write(Paths.get(outputFilePath), Base64.getEncoder().encode(ivWithCipherText));
         System.out.println("암호화 파일 확인 완료 : " + outputFilePath);
     }
 
     // 파일 복호화 메서드
     public static void decryptFile(SecretKey key, String inputFilePath, String outputFilePath) throws Exception {
         Cipher cipher = Cipher.getInstance(TRANSFORMATION);
-        cipher.init(Cipher.DECRYPT_MODE, key);  // 복호화 모드로 설정
 
         // 암호문 파일 읽기
         byte[] inputBytes = Files.readAllBytes(Paths.get(inputFilePath));
-
-        // Base64 디코딩 후 복호화 수행
         byte[] decodedBytes = Base64.getDecoder().decode(inputBytes);
-        byte[] outputBytes = cipher.doFinal(decodedBytes);
+
+        // IV와 암호문 분리
+        byte[] iv = new byte[8];
+        byte[] cipherText = new byte[decodedBytes.length - 8];
+        System.arraycopy(decodedBytes, 0, iv, 0, iv.length);
+        System.arraycopy(decodedBytes, iv.length, cipherText, 0, cipherText.length);
+
+        IvParameterSpec ivSpec = new IvParameterSpec(iv);
+        // 복호화 모드와 IV 설정
+        cipher.init(Cipher.DECRYPT_MODE, key, ivSpec);
+
+        // 복호화 수행
+        byte[] outputBytes = cipher.doFinal(cipherText);
 
         // 복호화된 파일로 저장
         Files.write(Paths.get(outputFilePath), outputBytes);
@@ -71,8 +98,9 @@ public class DESFileEncryptionPrint {
     // 메인 메서드
     public static void main(String[] args) {
         try {
-            // 1. DES 암호화 키 생성
+            // 1. DES 암호화 키 및 IV 생성
             SecretKey key = generateKey();
+            IvParameterSpec iv = generateIV();
 
             // 2. 파일 경로 설정
             String inputFile = "/Users/thdtjdals__/Desktop/문서/컴퓨터보안과제.txt";  // 평문 파일
@@ -80,7 +108,7 @@ public class DESFileEncryptionPrint {
             String decryptedFile = "/Users/thdtjdals__/Desktop/문서/decrypted_컴퓨터보안과제.txt";  // 복호화된 파일
 
             // 3. 파일 암호화
-            encryptFile(key, inputFile, encryptedFile);
+            encryptFile(key, iv, inputFile, encryptedFile);
 
             // 4. 파일 복호화
             decryptFile(key, encryptedFile, decryptedFile);
@@ -103,3 +131,4 @@ public class DESFileEncryptionPrint {
         }
     }
 }
+

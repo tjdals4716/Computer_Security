@@ -69,9 +69,9 @@ public class DESFileEncryption {
             SecretKey key = generateKey();
 
             // 2. 파일 경로 설정
-            String inputFile = "/Users/thdtjdals__/Desktop/문서/컴퓨터보안과제.rtf";  // 평문 파일
-            String encryptedFile = "/Users/thdtjdals__/Desktop/문서/컴퓨터보안과제.rtf";  // 암호문 파일
-            String decryptedFile = "/Users/thdtjdals__/Desktop/문서/컴퓨터보안과제.rtf";  // 복호화된 파일
+            String inputFile = "/Users/thdtjdals__/Desktop/문서/컴퓨터보안과제.txt";  // 평문 파일
+            String encryptedFile = "/Users/thdtjdals__/Desktop/문서/컴퓨터보안과제.txt";  // 암호문 파일
+            String decryptedFile = "/Users/thdtjdals__/Desktop/문서/컴퓨터보안과제.txt";  // 복호화된 파일
 
             // 3. 파일 암호화
             encryptFile(key, inputFile, encryptedFile);
